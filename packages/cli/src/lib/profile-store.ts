@@ -34,6 +34,11 @@ import {
   emptyVaultPayload,
 } from './vault.js';
 
+// NOTE: ConfigValidator (packages/cli/src/lib/config-validator.ts) is expected to
+// provide schema validation of profiles.json against config.schema.json. Its
+// integration point is readProfilesFile below.
+import { validateProfilesFile } from './config-validator.js';
+
 // ---------------------------------------------------------------------------
 // Configuration directory resolution
 // ---------------------------------------------------------------------------
@@ -89,6 +94,9 @@ function readProfilesFile(configDir: string): ProfilesFile {
       `Profiles file at ${filePath} is not valid JSON. It may be corrupt.`,
     );
   }
+
+  // Validate against config.schema.json; throws a descriptive ProfileError on failure.
+  validateProfilesFile(parsed, filePath);
 
   if (
     typeof parsed !== 'object' ||
