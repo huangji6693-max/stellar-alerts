@@ -15,6 +15,7 @@ import { authRoutes } from "./modules/auth/auth.routes";
 import { walletsRoutes } from "./modules/wallets/wallets.routes";
 import { paymentsRoutes } from "./modules/payments/payments.routes";
 import { webhooksRoutes } from "./modules/webhooks/webhooks.routes";
+import { getWellKnownStellarAlertsMetadata } from "./modules/webhooks/ed25519-signer";
 import { accountRoutes } from "./modules/account/account.routes";
 import { registerSecurityHeaders } from "./middleware/security.middleware";
 import { registerCorrelation } from "./middleware/correlation.middleware";
@@ -126,6 +127,10 @@ export const buildApp = async () => {
 
   app.get("/health", async () => {
     return { status: "ok" };
+  });
+
+  app.get("/.well-known/stellar-alerts.json", async () => {
+    return getWellKnownStellarAlertsMetadata();
   });
 
   // Issue #18 / #566: Deep Health Inspection Probe — no authentication required.

@@ -16,6 +16,10 @@ import {
   type ReplayCheckContext,
   type ReplayCheckResult,
 } from './replay-defense';
+import {
+  ED25519_SIGNATURE_HEADER,
+  signWebhookEd25519,
+} from './ed25519-signer';
 
 export interface WebhookTestResult {
   success: boolean;
@@ -338,9 +342,11 @@ export class WebhooksService {
     const nonce = crypto.randomBytes(16).toString('hex');
 
     const primary = generateWebhookSignature(payload, activeSecret, timestamp, nonce);
+    const ed25519Sig = signWebhookEd25519(payload, { timestamp });
     const headers: Record<string, string> = {
       'X-Stellar-Signature': primary.headerValue,
       'X-Stellar-Alerts-Nonce': nonce,
+      [ED25519_SIGNATURE_HEADER]: ed25519Sig.headerValue,
     };
 
     const graceActive =
