@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import {
   CURRENCY_OPTIONS,
   CurrencyCode,
-  FALLBACK_XLM_RATES,
   convertXlmAmount,
-  fetchXlmFiatRates,
   formatCurrencyAmount,
 } from './currency';
+import { useCurrencyPreference } from './CurrencyPreference';
 
 export interface CrossLedgerAnalyticsSummary {
   totalVolume: number;
@@ -49,45 +48,11 @@ export const SummaryStats: React.FC<SummaryStatsProps> = ({
   rates,
   crossLedgerAnalytics,
 }) => {
-  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>('XLM');
-  const [liveRates, setLiveRates] = useState<Record<CurrencyCode, number>>(FALLBACK_XLM_RATES);
-  const [rateStatus, setRateStatus] = useState<'loading' | 'live' | 'fallback'>('loading');
-
-  useEffect(() => {
-    let isMounted = true;
-
-    if (rates) {
-      return () => {
-        isMounted = false;
-      };
-    }
-
-    fetchXlmFiatRates()
-      .then((nextRates) => {
-        if (!isMounted) return;
-        setLiveRates(nextRates);
-        setRateStatus('live');
-      })
-      .catch(() => {
-        if (!isMounted) return;
-        setRateStatus('fallback');
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [rates]);
-
-  const resolvedRateStatus = rates ? 'live' : rateStatus;
-
-  const resolvedRates = useMemo(
-    () => ({
-      ...FALLBACK_XLM_RATES,
-      ...liveRates,
-      ...rates,
-    }),
-    [liveRates, rates]
-  );
+  const preference = useCurrencyPreference();
+  const selectedCurrency = preference.currency;
+  const setSelectedCurrency = preference.setCurrency;
+  const resolvedRateStatus = rates ? 'live' : preference.rateStatus;
+  const resolvedRates = { XLM: 1, ...preference.rates.XLM, ...rates };
 
   const effectiveTotalVolume = crossLedgerAnalytics?.summary?.totalVolume ?? totalVolumeXLM;
   const effectiveTotalCount = crossLedgerAnalytics?.summary?.totalTransactionCount ?? totalPaymentsCount;

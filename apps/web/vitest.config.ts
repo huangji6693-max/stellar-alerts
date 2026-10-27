@@ -15,6 +15,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    environmentOptions: { jsdom: { url: 'http://localhost' } },
     setupFiles: ['./vitest.setup.ts'],
     environmentMatchGlobs: [
       // Proxy/middleware tests run in Node — they use Buffer, crypto, and

@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { PaymentDTO, filterPayments, extractAvailableAssets } from '@stellar-alerts/shared';
 import { CopyButton } from '@/components/ui/CopyButton';
+import { formatAssetAmount } from './currency';
+import { useCurrencyPreference } from './CurrencyPreference';
 
 interface PaymentTableProps {
   payments: PaymentDTO[];
@@ -8,6 +10,7 @@ interface PaymentTableProps {
 }
 
 export const PaymentTable: React.FC<PaymentTableProps> = ({ payments = [], isLoading }) => {
+  const { currency, rates } = useCurrencyPreference();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAsset, setSelectedAsset] = useState('ALL');
 
@@ -278,7 +281,7 @@ export const PaymentTable: React.FC<PaymentTableProps> = ({ payments = [], isLoa
                     {new Date(payment.receivedAt).toLocaleString()}
                   </td>
                   <td className="py-3.5 px-4 font-semibold text-emerald-400 whitespace-nowrap">
-                    +{Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {formatAssetAmount(Number(payment.amount), payment.asset, currency, rates)}
                   </td>
                   <td className="py-3.5 px-4 whitespace-nowrap">
                     <span className="px-2.5 py-1 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
