@@ -23,6 +23,7 @@ import {
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useLiveDashboardStream } from '@/hooks/useLiveDashboardStream';
 import { useEmailTemplatePreference } from '@/hooks/useEmailTemplatePreference';
+import { CurrencyPreferenceProvider } from '@/components/dashboard/CurrencyPreference';
 
 // Multi-hop path payment routes. The ingestion worker does not yet record
 // path_payment_* offer chains, so this stays empty until a path-flows feed
@@ -64,6 +65,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
+    <CurrencyPreferenceProvider>
     <div className="min-w-0 space-y-8">
       <DeliveryToast delivery={latestDelivery} />
 
@@ -177,5 +179,6 @@ export default function DashboardPage() {
         ]}
       />
     </div>
+    </CurrencyPreferenceProvider>
   );
 }

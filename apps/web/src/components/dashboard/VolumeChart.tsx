@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   CURRENCY_OPTIONS,
   CurrencyCode,
-  FALLBACK_XLM_RATES,
   convertXlmAmount,
-  fetchXlmFiatRates,
   formatCurrencyAmount,
 } from './currency';
+import { useCurrencyPreference } from './CurrencyPreference';
 
 export interface VolumeChartPayment {
   amount: string | number;
@@ -104,36 +103,18 @@ export const VolumeChart: React.FC<VolumeChartProps> = ({
   rates,
   referenceDate,
 }) => {
-  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>('XLM');
-  const [liveRates, setLiveRates] = useState<Record<CurrencyCode, number>>(FALLBACK_XLM_RATES);
+  const preference = useCurrencyPreference();
+  const selectedCurrency = preference.currency;
+  const setSelectedCurrency = preference.setCurrency;
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    if (rates) return () => {
-      isMounted = false;
-    };
-
-    fetchXlmFiatRates()
-      .then((nextRates) => {
-        if (isMounted) setLiveRates(nextRates);
-      })
-      .catch(() => {
-        if (isMounted) setLiveRates(FALLBACK_XLM_RATES);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [rates]);
 
   const resolvedRates = useMemo(
     () => ({
-      ...FALLBACK_XLM_RATES,
-      ...liveRates,
+      XLM: 1,
+      ...preference.rates.XLM,
       ...rates,
     }),
-    [liveRates, rates]
+    [preference.rates, rates]
   );
 
   const series = useMemo(() => {

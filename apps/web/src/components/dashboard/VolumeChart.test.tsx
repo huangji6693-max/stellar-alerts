@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import {
   VolumeChart,
@@ -7,6 +7,7 @@ import {
   spreadTotalVolumeAcrossSeries,
 } from './VolumeChart';
 import { FALLBACK_XLM_RATES } from './currency';
+import { CurrencyPreferenceProvider } from './CurrencyPreference';
 
 describe('VolumeChart', () => {
   it('builds a 30-day XLM-only volume series from payment records', () => {
@@ -24,18 +25,22 @@ describe('VolumeChart', () => {
   });
 
   it('renders an interactive currency chart', () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
     render(
+      <CurrencyPreferenceProvider>
       <VolumeChart
         payments={[{ amount: '100', asset: 'XLM', receivedAt: '2026-08-29T00:00:00.000Z' }]}
         rates={{ ...FALLBACK_XLM_RATES, USD: 0.2 }}
         referenceDate={new Date('2026-08-29T00:00:00.000Z')}
       />
+      </CurrencyPreferenceProvider>
     );
 
     fireEvent.click(screen.getByTestId('volume-currency-toggle-USD'));
 
     expect(screen.getByTestId('volume-chart-svg')).toBeInTheDocument();
     expect(screen.getByText('$20.00')).toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 
   it('spreads total volume into a chartable fallback series', () => {

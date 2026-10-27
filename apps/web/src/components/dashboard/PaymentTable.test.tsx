@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { PaymentTable } from './PaymentTable';
+import { DashboardHeader } from './DashboardHeader';
+import { CurrencyPreferenceProvider } from './CurrencyPreference';
 import type { PaymentDTO } from '@stellar-alerts/shared';
 
 // jsdom doesn't implement URL.createObjectURL/revokeObjectURL at all, and its
@@ -74,6 +76,22 @@ describe('PaymentTable CSV/JSON export (issue #582)', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it('uses the selected fiat currency for supported payment assets', () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    render(
+      <CurrencyPreferenceProvider>
+        <DashboardHeader />
+        <PaymentTable payments={[makePayment({ amount: 100, asset: 'USDC' })]} isLoading={false} />
+      </CurrencyPreferenceProvider>,
+    );
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Display currency' }), {
+      target: { value: 'GBP' },
+    });
+    expect(screen.getByText('£79.00')).toBeInTheDocument();
   });
 
   it('disables both export buttons when there are no payments', () => {
