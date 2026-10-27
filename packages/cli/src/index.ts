@@ -1,2 +1,2 @@
-export * from './lib/offline-validator.js';
-export * from './commands/offline-verify.js';
+export * from './lib/merkle-verifier.js';
+export * from './commands/verify-proof.js';

@@ -9,7 +9,7 @@ import { registerStreamCommands } from './commands/stream.js';
 import { registerProfileCommands } from './commands/profile.js';
 import { registerCompletionCommands } from './commands/completion.js';
 import { registerMultisigCommands } from './commands/multisig.js';
-import { registerOfflineVerifyCommand } from './commands/offline-verify.js';
+import { registerVerifyProofCommand } from './commands/verify-proof.js';
 import StreamTui from './tui/stream-tui.js';
 
 const program = new Command();
@@ -30,7 +30,7 @@ registerStreamCommands(program);
 registerProfileCommands(program);
 registerCompletionCommands(program);
 registerMultisigCommands(program);
-registerOfflineVerifyCommand(program);
+registerVerifyProofCommand(program);
 
 // Health check command
 program
