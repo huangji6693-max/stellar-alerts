@@ -12,6 +12,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "stellar-sdk": "^13.3.0",
     "zod": "^3.22.4"
   }
 }
